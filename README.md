@@ -6,4 +6,4 @@ Furthermore, the research will also be conducted to determine which of the selec
 and to analyze whether the data enrichment has any effect on improving the clustering quality. 
 The NewsAPI, Crossref, altmetric and idw (Informationsdienst Wissenschaft) are sources that will be used for data enrichment.
 The thesis involved working with some clustering techniques such as k-means clustering, agglomerative hierachical clustering and DBSCAN, applying on 
-text data. NLP, therefore, is part of the thesis. Besides the  Sklearn API, which is used for clustering, many other librabies such as Beautifulsoup for data enrichment, crossref_common for pulling opensource datas from Crossref etc. 
+text data. NLP, therefore, is part of the thesis. Besides the  Sklearn API, which is used for clustering, nltk for text preprocessing and many other librabies such as aiohttp, asyncio, Beautifulsoup for data enrichment, crossref_common for pulling opensource datas from Crossref etc. 
