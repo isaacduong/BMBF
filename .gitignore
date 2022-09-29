@@ -1,2 +1,5 @@
-BMBFenv
+*BMBFenv
 ./data/BMBF.csv
+
+./eda/.ipynb_checkpoints/
+eda/.ipynb_checkpoints/*
