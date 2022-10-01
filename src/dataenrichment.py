@@ -6,20 +6,24 @@ import traceback
 import time
 import logging
 
-logging.basicConfig(level=logging.DEBUG, format="{asctime} {message}", style="{")
-
 
 import pandas as pd
 from PyPDF2 import PdfFileReader
-
+import yaml
 import requests
 import aiohttp
 from bs4 import BeautifulSoup
 from crossref_commons.retrieval import get_publication_as_json
 from crossref_commons.iteration import iterate_publications_as_json
 
+logger = logging.getLogger(__name__)
+
 
 class PublisherProperties:
+    def __init__(
+        self,
+    ):
+        logger.info(" test complete")
 
     mdpi = {"attrs": {"class": "html-body"}}
 
@@ -31,7 +35,7 @@ class PublisherProperties:
     }
 
 
-class crawler(object):
+class Scraper(object):
     """This class contains some functions to fetch DOIS from Crossref and
     using these DOIS to retrieve abstracts as wwell as full texts from different sources
 
@@ -39,8 +43,13 @@ class crawler(object):
         APIKey (str): personal APIKey provided by elsevier to retrieve datas from sciencedirect / elsevier.
     """
 
-    def __init__(self, APIKey, max_results=10):
+    def __init__(self, APIKey: str, max_results: int = 10):
+        """Constructor method
 
+        Args:
+            APIKey (string): personal APIKey provided by elsevier to retrieve datas from sciencedirect / elsevier.
+            max_results (int, optional): number of publications to retrieve. Defaults to a small number of 10  .
+        """
         self.APIKey = APIKey
         self.max_results = max_results
         self.abstracts = defaultdict(str)
@@ -115,8 +124,7 @@ class crawler(object):
                 self.abstracts[DOI] = abstract
 
             except Exception as ex:
-                ex.print_exc()
-                logging.error(f"Unable to retrieve {DOI} from {resource}")
+                logger.error(f"Unable to retrieve {DOI} from {resource}", exc_info=True)
 
             finally:
                 return self.abstracts
@@ -143,8 +151,7 @@ class crawler(object):
                         self.abstracts[DOI] = meta_tag["content"]
 
             except Exception as ex:
-                logging.error(f"Unable to retrieve {DOI} from {resource}")
-                ex.print_exc()
+                logger.error(f"Unable to retrieve {DOI} from {resource}", exc_info=True)
 
             finally:
                 return self.abstracts
@@ -176,8 +183,7 @@ class crawler(object):
                     break
 
         except Exception as ex:
-            traceback.print_exception(type(ex), ex, ex.__traceback__)
-            logging.error(f"Unable to retrieve {url}")
+            logger.error(f"Unable to retrieve {url}", exc_info=True)
 
         finally:
             self.fulltexts[url] = "".join(text)
@@ -209,8 +215,8 @@ class crawler(object):
                 self.fulltexts[DOI] = fulltext
 
         except Exception as ex:
-            traceback.print_exc()
-            logging.error(f"Unable to retrieve {DOI} from {resource}")
+            
+            logger.exception(f"Unable to retrieve {DOI} from {resource}")
 
         finally:
             return self.fulltexts
@@ -263,30 +269,77 @@ class crawler(object):
                 )[0]
 
         except Exception as ex:
-            traceback.print_exc()
-            logging.error(f"Unable to retrieve {url}")
+            logger.error(f"Unable to retrieve {url}", exc_info=True)
 
         finally:
             return self.fulltexts
 
-    async def main(self, urls):
+    def text_from_soup(self, html, url, fulltexts: dict):
+        """This function extracts the fulltext from html retrieved.
 
-        """function to retrieve html sites synchroniously"""
+        Args:
+            html (string): html site to extract
+            url (string): url of the html site
+            fulltexts (dict): dictionary contains fulltexts
 
-        async def retrieve_text(session, url):
-            try:
-                async with session.get(url) as res:
-                    self.html_contents[url] = await res.text()
+        Returns:
+            dict: dictionary contains fulltexts
+        """
+        fulltext = ""
+        soup = BeautifulSoup(html, "html.parser")
+        if "nature" in url:
+            if soup.find("span", attrs={"data-test": "open-access"}):
+                resultset = soup.find(
+                    "div", attrs=PublisherProperties.nature["attrs"]
+                ).findChildren()
 
-            except Exception as ex:
+                for text in resultset:
+                    fulltext = fulltext + str(text)
+                self.fulltexts[url] = fulltext.split(
+                    PublisherProperties.nature["split_text"]
+                )[0]
+        elif "mdpi" in url:
+            resultset = soup.find(
+                "div", attrs=PublisherProperties.mdpi["attrs"]
+            ).findChildren()
+            for text in resultset:
+                fulltext = fulltext + str(text)
+            self.fulltexts[url] = fulltext
 
-                traceback.print_exception(type(ex), ex, ex.__traceback__)
-                self.html_contents[url] = None
+        elif "frontiersin" in url:
+            resultset = soup.find(
+                "div", attrs=PublisherProperties.frontiersin["attrs"]
+            ).findChildren()
 
-        async with aiohttp.ClientSession() as session:
-            tasks = []
-            for url in urls:
-                task = asyncio.ensure_future(retrieve_text(session, url))
-                tasks.append(task)
+            for text in resultset:
+                fulltext = fulltext + str(text)
+            self.fulltexts[url] = fulltext.split(
+                PublisherProperties().frontiersin["split_text"]
+            )[0]
+        else:
+            fulltexts[url] = None
 
-            await asyncio.gather(*tasks)
+        return self.fulltexts
+
+    def extract_fulltext_from_html(self, url, html):
+        """This function extracts the fulltext from html retrieved.
+
+        Args:
+            html (string): html site to extract
+
+        Returns:
+            string: fulltext
+        """
+
+        if "mdpi" in url:
+            url = url + "/htm"  # fulltext suffix
+
+        try:
+            self.fulltexts = self.text_from_soup(html, url, self.fulltexts)
+
+        except Exception as ex:
+            logger.error(f"Unable to retrieve {url}", exc_info=True)
+
+        finally:
+            return self.fulltexts
+

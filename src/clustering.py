@@ -1,10 +1,14 @@
 import re
+import logging
+from logging import config
+import yaml
 from typing import Any
 import pandas as pd
 from sklearn.cluster import KMeans
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.cluster import DBSCAN
 
+import dataenrichment
 import nltk
 
 # nltk.download('stopwords')
@@ -15,14 +19,18 @@ from nltk.tokenize import word_tokenize
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics import silhouette_score
+from utils import remove_html_tags
+
+logger = logging.getLogger(__name__)
 
 
-class cluster(object):
+class Cluster(object):
 
     """class for clustering the data"""
 
     def __init__(self, data, vectorizer=TfidfVectorizer(), clusterer=KMeans()):
 
+        logger.info("Initializing Cluster")
         self.X = data
         self.vectorizer = vectorizer
         self.clusterer = clusterer

@@ -1,5 +1,5 @@
 # BMBF 
-This project stems from my bachelor thesis. It tackles unsuperwised machine learning problem.
+I developed this project for my bachelor's thesis. In the thesis, an unsuperwised machine learning problem is addressed . 
 A major objective of the thesis is to study how BMBF grants in the BMBF funding dataset are grouped using cluster analysis,
 as well as how they are enriched with data collected from selected sources in order to analyze their clustering results. 
 Furthermore, the research will also be conducted to determine which of the selected cluster analysis is most suitable for grouping the grants
