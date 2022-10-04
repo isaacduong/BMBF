@@ -1,17 +1,12 @@
-import os
 import argparse
 import logging
 from logging import config
 
-
 import yaml
 import pandas as pd
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics import silhouette_score
 
 from clustering import Cluster
-import dataenrichment
 import dispatcher
 from utils import cleaned_data, preprocess
 
@@ -50,4 +45,5 @@ if __name__ == "__main__":
     parser.add_argument("--vectorizer", type=str)
 
     args = parser.parse_args()
+
     main(args.clusterer, args.vectorizer)
