@@ -36,16 +36,13 @@ class Cluster(object):
 
         logger.info("fitting data")
         self.X_vec_ = self.vectorizer.fit_transform(data, *args, **kwds)
-        clusters = self.clusterer.fit(self.X_vec_)
+        clusters = self.clusterer.fit(self.X_vec_.toarray())
 
         return clusters.labels_
 
     def silhouette_score(self, labels):
 
-        if not self.X_vec_:
-            raise ValueError("data must be fitted first")
-
         logger.info("calculating silhouette score")
-        silhouette_s = silhouette_score(self.X_vec, labels)
+        silhouette_s = silhouette_score(self.X_vec_, labels)
 
         return silhouette_s

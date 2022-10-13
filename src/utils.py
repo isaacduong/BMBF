@@ -27,7 +27,7 @@ def cleaned_data(data: pd.DataFrame):
     return data
 
 
-def preprocess(text):
+def preprocessor(text):
     """
     Args:
         text (string): text to be preprocessed
