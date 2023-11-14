@@ -88,5 +88,5 @@ def extract_FKZ(FKZ):
     pattern = "[A-Z0-9/]{3,10}"
     matches = re.findall(pattern, FKZ)
 
-    return matches if matches else None
+    return matches[0] if matches else None
 
