@@ -39,7 +39,9 @@ def preprocess(text):
     """
     stop_words = set(stopwords.words("german"))
     stemmer = SnowballStemmer("german")
+    text = re.sub(r'\d+', '', text)
     tokens = [word for word in nltk.word_tokenize(text) if word not in stop_words and word not in string.punctuation]
+    
     stems = [stemmer.stem(t) for t in tokens]
 
     return stems
