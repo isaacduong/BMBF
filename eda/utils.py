@@ -92,3 +92,24 @@ def extract_FKZ(FKZ):
 
     return matches[0] if matches else None
 
+def dataframe_table_to_png(df,table_name,index_column_name, colWidths):
+    """ function to convert pandas DataFrame to png """
+    import matplotlib.pyplot as plt
+    from pandas.plotting import table
+   
+    # Create a figure and axis
+    fig, ax = plt.subplots(figsize=(8, 4))
+
+    # Plot the table
+    tab = table(ax, df.reset_index().rename(columns={'index':index_column_name}), loc='center', colWidths=colWidths,colColours=['grey']+['lightgrey']*(len(df.columns)))
+
+    # Style the table
+    tab.auto_set_font_size(False)
+    tab.set_fontsize(10)
+    tab.scale(1.2, 1.5)
+
+    # Hide the axes
+    ax.axis('off')
+
+    # Save the figure as an image
+    fig.savefig(f'{table_name}.png', bbox_inches='tight', dpi=300)
