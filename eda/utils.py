@@ -6,6 +6,8 @@ import nltk
 from nltk.corpus import stopwords
 from nltk.stem.snowball import SnowballStemmer
 from nltk.tokenize import word_tokenize
+nltk.download('punkt')
+nltk.download('stopwords')
 
 
 def clean_data(data: pd.DataFrame):
@@ -40,7 +42,8 @@ def preprocess(text):
     stop_words = set(stopwords.words("german"))
     stemmer = SnowballStemmer("german")
     text = re.sub(r'\d+', '', text)
-    tokens = [word for word in nltk.word_tokenize(text) if word not in stop_words and word not in string.punctuation]
+    
+    tokens = [word for word in nltk.word_tokenize(text) if word.lower() not in stop_words and word not in string.punctuation]
     
     stems = [stemmer.stem(t) for t in tokens]
 
