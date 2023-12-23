@@ -4,3 +4,5 @@
 eda/.ipynb_checkpoints/*
 .DS_Store
 backlog.log
+log_config.yaml
+data/idw.csv data/idw_enrichment.csv
